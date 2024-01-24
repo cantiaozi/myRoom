@@ -13,8 +13,8 @@
   </header>
 
   <RouterView /> -->
-  <div class="scene">
-    <canvas ref="canvas" style="width: 700px; height: 700px"></canvas>
+  <div ref="canvas" class="scene">
+    <!-- <canvas ref="canvas"></canvas> -->
   </div>
 </template>
 
@@ -39,8 +39,10 @@ import {
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import createMesh from './js/createMesh.js'
 import { loadTable, loadSofa, loadCabinet } from './js/loadModel'
+import { mergeMeshesToGeometry } from './js/mergeMeshesToGeometry'
+import { createVertexToTexture } from './js/createTexture'
+import { bvhAccel, flattenBvh } from './js/accelBvh'
 import { initWebgl } from './js/initWebgl'
-import { render } from './js/render'
 // canvas 容器
 const canvas = ref()
 const scene = new Scene()
@@ -56,55 +58,54 @@ light.castShadow = true
 allModels.push(...walls)
 const loadModelStatus = ref({
   tableStatus: false,
-  sofaStatus: true,
-  cabinetStatus: true
+  sofaStatus: false,
+  cabinetStatus: false
 })
 const allModelStatus = computed(() => {
   return loadModelStatus.value.tableStatus && loadModelStatus.value.sofaStatus && loadModelStatus.value.cabinetStatus
 })
 loadTable(allModels, loadModelStatus)
-// loadSofa(allModels, loadModelStatus)
-// loadCabinet(allModels, loadModelStatus)
-// const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
-const camera = new PerspectiveCamera(60, 1, 0.1, 1000)
-camera.position.set(0,0,2.5)//为了确保OrbitControls工作，position不能设置成原点
+loadSofa(allModels, loadModelStatus)
+loadCabinet(allModels, loadModelStatus)
+const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
+camera.position.set(0,0,0.5)//为了确保OrbitControls工作，position不能设置成原点
 camera.lookAt(0, 0, -1)
 camera.up.set(0, 1, 0)
 
-// let renderer = new WebGLRenderer()
-// renderer.shadowMap.enabled = true;
-// renderer.shadowMap.type = PCFSoftShadowMap
-// renderer.setSize(window.innerWidth, window.innerHeight)
-// window.addEventListener('resize', () => {
-//   camera.aspect = window.innerWidth / window.innerHeight
-//   camera.updateProjectionMatrix()
-//   renderer.setSize(window.innerWidth, window.innerHeight)
-// })
+let renderer = new WebGLRenderer()
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = PCFSoftShadowMap
+renderer.setSize(window.innerWidth, window.innerHeight)
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(window.innerWidth, window.innerHeight)
+})
 
-// const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
 // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
-// controls.addEventListener('change', function () {
-//     renderer.render(scene, camera); //执行渲染操作
-// });//监听鼠标、键盘事件
+controls.addEventListener('change', function () {
+    renderer.render(scene, camera); //执行渲染操作
+});//监听鼠标、键盘事件
 
+const addMeshToScene = (mergedGeometry) => {
+  const material = new MeshStandardMaterial({ color: 0x00ff00, side: DoubleSide })
+  const mesh = new Mesh(mergedGeometry, material)
+  scene.add(mesh)
+}
 
-onMounted(async () => {
-  const gl = await initWebgl({
-    canvas: canvas.value,
-    width: window.innerWidth,
-    height: window.innerHeight
-  })
+onMounted(() => {
   const animate = () => {
-    if(allModelStatus.value) {
-      render(gl, allModels, camera)
-    } else {
-      requestAnimationFrame( animate );
-    }
-    // requestAnimationFrame( animate );
-    // setTimeout(animate, 5000)
-    // renderer.render( scene, camera );
+    requestAnimationFrame( animate );
+    // const meshes = decomposeScene(allModels)
+    const mergedGeometry = mergeMeshesToGeometry(allModels)
+    const bvhNodes = bvhAccel(mergedGeometry.geometry)
+    const flatBvh = flattenBvh(bvhNodes);
+    // createVertexToTexture(mergedGeometry)
+    addMeshToScene(mergedGeometry.geometry)
+    renderer.render( scene, camera );
   }
-  // canvas.value.appendChild(renderer.domElement)
+  canvas.value.appendChild(renderer.domElement)
   animate()
 })
 </script>

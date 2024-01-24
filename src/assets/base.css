@@ -59,7 +59,9 @@
 }
 
 body {
-  min-height: 100vh;
+  /* min-height: 100vh; */
+  height: 100%;
+  width: 100%;
   color: var(--color-text);
   background: var(--color-background);
   transition:
@@ -83,4 +85,13 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+}
+div {
+  height: 100%;
+  width: 100%;
 }

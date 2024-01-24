@@ -11,6 +11,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "gl-matrix": "^3.4.3",
     "three": "^0.160.0",
     "vue": "^3.3.11",
     "vue-router": "^4.2.5"

@@ -12,13 +12,17 @@ function textureDimensionsFromArray(count) {
   }
 }
 
-function makeDataTexture(gl, dataArray, channels) {
+export function makeDataTexture(gl, dataArray, channels) {
   const textureDim = textureDimensionsFromArray(dataArray.length / channels)
-  return makeTexture(gl, {
+  const texture = makeTexture(gl, {
     data: padArray(dataArray, channels * textureDim.size), //将实际的数据扩展成纹理总共能储存的大小，不足的用0补充
     width: textureDim.columns,
     height: textureDim.rows
   })
+  return {
+    texture,
+    columnsLog: textureDim.columnsLog
+  }
 }
 
 // expand array to the given length

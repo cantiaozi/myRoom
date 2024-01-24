@@ -24,7 +24,7 @@ const loadModel = async (url) => {
   })
 }
 
-export const loadTable = async (scene) => {
+export const loadTable = async (scene, loadModelStatus) => {
   const table = await loadModel('static/model/table.glb')
   table.scene.traverse((child) => {
     if (child.isMesh) {
@@ -41,13 +41,15 @@ export const loadTable = async (scene) => {
         child.rotateX(-Math.PI / 2)
         child.scale.set(0.05, 0.05, 0.05)
         child.castShadow = true
+        child.name = 'table'
         scene.push(child)
       }
     }
   })
+  loadModelStatus.value.tableStatus = true
 }
 
-export const loadSofa = async (scene) => {
+export const loadSofa = async (scene, loadModelStatus) => {
   const table = await loadModel('static/model/sofa.glb')
   table.scene.traverse((child) => {
     if (child.isMesh) {
@@ -63,14 +65,17 @@ export const loadSofa = async (scene) => {
         child.rotateY(-Math.PI / 2)
         child.rotateX(-Math.PI / 2)
         child.scale.set(0.0008, 0.0008, 0.0008)
+        child.name = 'sofa'
         scene.push(child)
       }
     }
   })
+  loadModelStatus.value.sofaStatus = true
 }
 
-export const loadCabinet = async (scene) => {
+export const loadCabinet = async (scene, loadModelStatus) => {
   const table = await loadModel('static/model/cabinet.glb')
+  let index = 1;
   table.scene.traverse((child) => {
     if (child.isMesh) {
       if (!child.geometry) {
@@ -85,9 +90,11 @@ export const loadCabinet = async (scene) => {
         child.rotateY(-Math.PI / 2)
         // child.rotateX(-Math.PI / 2)
         child.scale.set(0.5, 0.5, 0.5)
+        child.name = 'cabinet' + index
+        index++
         scene.push(child)
       }
     }
   })
-  // scene.add(table.scene)
+  loadModelStatus.value.cabinetStatus = true
 }
