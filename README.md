@@ -1,6 +1,8 @@
 # MyRoom
 
-This template should help get you started developing with Vue 3 in Vite.
+这是一个光线追踪渲染的房间，目前只有一个桌子.
+![image](https://github.com/cantiaozi/myRoom/assets/30336438/2cdc9a60-ae10-46ee-854f-3ca96907e7b1)
+
 
 ## Recommended IDE Setup
 
